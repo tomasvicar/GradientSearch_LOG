@@ -9,6 +9,47 @@ import numpy as np
 import collections
 from scipy.optimize import linear_sum_assignment
 from scipy.spatial import distance_matrix
+from matplotlib.patches import Ellipse
+
+
+def sigma2abc(sx,sy,t):
+
+    a =  np.cos(t)**2 / (2 *sx **2) +  np.sin(t)**2 / (2 * sy ** 2);
+    b = - np.sin(2 * t)/ (4 * sx ** 2) + np.sin(2 * t) / (4 * sy ** 2);
+    c =  np.sin(t) ** 2 / (2 * sx **2) + np.cos(t) ** 2 / (2 * sy**2);
+    
+    
+    return a,b,c
+
+def abc2sigma(a,b,c):
+
+    x=((a+c)+np.sqrt((a-c)**2+4*b**2))/2;
+    y=a+c-x;
+    t=np.arccos((a-c)/(x-y))/2;
+    
+    sx=np.sqrt(1/(2*x));
+    sy=np.sqrt(1/(2*y));
+    
+    return sx,sy,t
+
+
+def draw_elipses(img,x,y,sx,sy,t,abc=False):
+    """
+    input can be img,x,y,a,b,c if abc=True
+    t - radians
+    """
+    
+    if abc:
+        sx,sy,t=abc2sigma(sx,sy,t)
+    
+    
+    fig, ax = plt.subplots(1, 1, figsize=(14, 12), dpi= 80, facecolor='w', edgecolor='k')
+    rows, cols = data.shape
+    ax.imshow(img)
+    
+    for x_tmp,y_tmp,sx_tmp,sy_tmp,t_tmp in zip(x,y,sx,sy,t):
+            ax.add_artist(Ellipse((y_tmp,x_tmp), sx_tmp*np.sqrt(2),sy_tmp*np.sqrt(2),t_tmp*180/np.pi, fill=False, edgecolor ='r' ))
+
 
 def isDir(address):
     if (os.path.isdir(address)):
